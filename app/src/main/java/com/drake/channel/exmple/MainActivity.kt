@@ -1,11 +1,13 @@
 package com.drake.channel.exmple
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.drake.channel.receive
+import com.drake.channel.send
+import com.hulab.debugkit.dev
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.channels.Channel
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,20 +15,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
-            Log.d(
-                "日志",
-                "(MainActivity.kt:15)    throwable = $throwable"
-            )
+
+        receive<String>(true) {
+
+            Log.d("日志", "(MainActivity.kt:25)    事件 = $it")
+
+            tv.text = it
         }
 
-        val channel = Channel<Any>()
 
-        tv_open.setOnClickListener {
 
+
+
+        dev {
+            function("新界面") {
+                startActivity(Intent(this@MainActivity, Main2Activity::class.java))
+            }
+
+            function("发送事件") {
+                send("金城武")
+                log("金城武")
+            }
         }
-
-//        channel.send(23)
-
     }
 }
