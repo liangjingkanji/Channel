@@ -35,7 +35,7 @@ allprojects {
 module 的 build.gradle
 
 ```groovy
-implementation 'com.github.liangjingkanji:Channel:1.0'
+implementation 'com.github.liangjingkanji:Channel:1.0.1'
 ```
 
 ## 示例
@@ -43,9 +43,9 @@ implementation 'com.github.liangjingkanji:Channel:1.0'
 
 
 ```kotlin
-send("吴彦祖")
+sendEvent("吴彦祖")
 
-receive<String> {
+receiveEvent<String> {
   Log.d("日志", "(MainActivity.kt:25)    it = $it")
 }
 
@@ -54,7 +54,7 @@ receive<String> {
 
 sendTag("refresh_tag")
 
-receive("refresh_tag") {
+receiveEvent("refresh_tag") {
   Log.d("日志", "(MainActivity.kt:25)    tag = $it") // refresh_tag
   
 }
@@ -71,7 +71,7 @@ receive("refresh_tag") {
 发送事件+标签
 
 ```kotlin
-fun send(
+fun sendEvent(
   event: Any,  // 事件
   tag: String = "",  // 标签
 )
@@ -126,7 +126,7 @@ fun receiveTag(
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): ChannelScope
 
-inline fun <reified T> receive(
+inline fun <reified T> receiveEvent(
     vararg tags: String = arrayOf(),
     noinline block: suspend (event: T) -> Unit
 ): ChannelScope
@@ -137,7 +137,7 @@ inline fun <reified T> receive(
 ## 异常捕捉
 
 ```kotlin
-receive("refresh_tag") {
+receiveEvent("refresh_tag") {
   Log.d("日志", "(MainActivity.kt:25)    tag = $it") // refresh_tag
   
 }.catch { // 当作用域中发生异常

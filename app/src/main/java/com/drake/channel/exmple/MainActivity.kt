@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.drake.channel.receive
-import com.drake.channel.send
+import com.drake.channel.receiveEvent
+import com.drake.channel.sendEvent
 import com.hulab.debugkit.dev
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        receive<String>(true) {
+        receiveEvent<String>(true) {
 
             Log.d("日志", "(MainActivity.kt:25)    事件 = $it")
 
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             function("发送事件") {
-                send("金城武")
+                sendEvent("金城武")
                 log("金城武")
             }
         }

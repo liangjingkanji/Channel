@@ -16,7 +16,7 @@ val _channel = BroadcastChannel<Bus<Any>>(Channel.BUFFERED)
 
 // <editor-fold desc="发送">
 
-fun send(event: Any, tag: String = "") =
+fun sendEvent(event: Any, tag: String = "") =
     runBlocking { _channel.send(Bus(event, tag)) }
 
 
@@ -27,7 +27,7 @@ fun sendTag(tag: String) = runBlocking { _channel.send(Bus(TagEvent(), tag)) }
 
 // <editor-fold desc="接收">
 
-inline fun <reified T> LifecycleOwner.receive(
+inline fun <reified T> LifecycleOwner.receiveEvent(
     active: Boolean = false,
     vararg tags: String = arrayOf(),
     lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
@@ -41,7 +41,7 @@ inline fun <reified T> LifecycleOwner.receive(
             if (bus.event is T && (tags.isEmpty() && bus.tag.isBlank() || tags.contains(bus.tag))) {
                 if (active) {
                     MutableLiveData<T>().apply {
-                        observe(this@receive, Observer {
+                        observe(this@receiveEvent, Observer {
                             coroutineScope.launch {
                                 block(it)
                             }
@@ -55,7 +55,7 @@ inline fun <reified T> LifecycleOwner.receive(
 }
 
 
-inline fun <reified T> receive(
+inline fun <reified T> receiveEvent(
     vararg tags: String = arrayOf(),
     noinline block: suspend (event: T) -> Unit
 ): ChannelScope {
