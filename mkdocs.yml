@@ -1,0 +1,44 @@
+site_name: Channel
+site_author: drake
+site_description: Channel document
+copyright: Copyright &copy; 2018 - 2020 Drake
+
+repo_name: Channel
+repo_url: https://github.com/liangjingkanji/Channel
+
+extra_css:
+  - css/extra.css
+
+docs_dir: 'docs'
+
+theme:
+  name: material
+  custom_dir: docs/material
+
+  palette:
+    scheme: 'drake'
+
+  font: false
+
+  language: zh
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed
+
+
+nav:
+  - 使用: index.md
+  - 标签事件: tag-event.md
+  - 生命周期: lifecycle.md
+  - 前台更新: live.md
+  - 切换调度器: dispatcher.md
+  - 异常捕获: exception.md
+  - 1.x文档: api/channel/com.drake.channel/index.md

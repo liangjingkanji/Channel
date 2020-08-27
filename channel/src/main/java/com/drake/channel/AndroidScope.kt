@@ -16,9 +16,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * 异步协程作用域
+ * 具备捕获异常, 监听生命周期的功能
+ * @suppress 一般代码不应该使用
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate", "NAME_SHADOWING")
-open class ChannelScope() : CoroutineScope {
+open class AndroidScope() : CoroutineScope {
 
 
     constructor(
@@ -35,8 +37,8 @@ open class ChannelScope() : CoroutineScope {
     }
 
 
-    protected var catch: (ChannelScope.(Throwable) -> Unit)? = null
-    protected var finally: (ChannelScope.(Throwable?) -> Unit)? = null
+    protected var catch: (AndroidScope.(Throwable) -> Unit)? = null
+    protected var finally: (AndroidScope.(Throwable?) -> Unit)? = null
     protected var auto = true
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -49,7 +51,7 @@ open class ChannelScope() : CoroutineScope {
 
     open fun launch(
         block: suspend CoroutineScope.() -> Unit
-    ): ChannelScope {
+    ): AndroidScope {
         start()
         launch(EmptyCoroutineContext, block = block).invokeOnCompletion { finally(it) }
         return this
@@ -70,7 +72,7 @@ open class ChannelScope() : CoroutineScope {
     /**
      * 当作用域内发生异常时回调
      */
-    open fun catch(block: ChannelScope.(Throwable) -> Unit = {}): ChannelScope {
+    open fun catch(block: AndroidScope.(Throwable) -> Unit = {}): AndroidScope {
         this.catch = block
         return this
     }
@@ -78,7 +80,7 @@ open class ChannelScope() : CoroutineScope {
     /**
      * 无论正常或者异常结束都将最终执行
      */
-    open fun finally(block: ChannelScope.(Throwable?) -> Unit = {}): ChannelScope {
+    open fun finally(block: AndroidScope.(Throwable?) -> Unit = {}): AndroidScope {
         this.finally = block
         return this
     }

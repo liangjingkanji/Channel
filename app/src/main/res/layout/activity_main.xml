@@ -6,14 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/btn_open_act"
+        style="@style/SimpleButton"
+        android:layout_marginTop="192dp"
+        android:text="打开界面 B"
+        app:layout_constraintEnd_toStartOf="@+id/btn_send_to_current"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_send_to_current"
+        android:text="发送事件给当前"
+        style="@style/SimpleButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_open_act"
+        app:layout_constraintTop_toTopOf="@+id/btn_open_act" />
+
     <TextView
-        android:id="@+id/tv"
+        android:id="@+id/tv_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="显示事件"
+        android:textStyle="bold"
+        android:layout_marginTop="68dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_open_act" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,5 @@
+$dokka.format:gfm
+$dokka.linkExtension:md
+$dokka.location:com.drake.channel$receiveEvent(androidx.lifecycle.LifecycleOwner, kotlin.Boolean, kotlin.Array((kotlin.String)), androidx.lifecycle.Lifecycle.Event, kotlin.coroutines.SuspendFunction2((kotlinx.coroutines.CoroutineScope, com.drake.channel.receiveEvent.T, kotlin.Unit)))com.drake.channel/androidx.lifecycle.-lifecycle-owner/receive-event.md
+$dokka.location:com.drake.channel$receiveTag(androidx.lifecycle.LifecycleOwner, kotlin.Boolean, kotlin.Array((kotlin.String)), androidx.lifecycle.Lifecycle.Event, kotlin.coroutines.SuspendFunction2((kotlinx.coroutines.CoroutineScope, kotlin.String, kotlin.Unit)))com.drake.channel/androidx.lifecycle.-lifecycle-owner/receive-tag.md
+com.drake.channel

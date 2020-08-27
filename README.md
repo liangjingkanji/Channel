@@ -1,25 +1,55 @@
-内部使用协程实现的Android事件总线框架
+## Channel
 
-用于替换同类型框架: RxBus/EventBus/LiveDataBus
+<p align="center"><img src="https://i.imgur.com/FlRSoGc.jpg" width="40%"/></p>
 
-## 特性
+<p align="center"><strong>基于最新特性的Android事件分发框架</strong></p><br>
 
-1. 发送消息 + 标签
-2. 仅发送标签
-3. 自动注销
-4. 自定义注销的生命周期, 手动取消观察者
-5. 接收消息属于异步主线程作用域
-6. 捕捉异常
-7. 回调 catch/finaly
-8. 消息延迟到应用前台时接收
-
+<p align="center">
+<a href="https://jitpack.io/#liangjingkanji/Channel"><img src="https://jitpack.io/v/liangjingkanji/Channel.svg"/></a>
+<img src="https://img.shields.io/badge/language-kotlin-orange.svg"/>
+<img src="https://img.shields.io/badge/license-Apache-blue"/>
+<a href="https://jq.qq.com/?_wv=1027&k=vWsXSNBJ"><img src="https://img.shields.io/badge/QQ群-752854893-blue"/></a>
+</p>
+<p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a></p>
 
 
-## 依赖
+<p align="center"><img src="https://i.imgur.com/lZXNqXE.jpg" width="30%;" /></p>
 
-## 安装
 
-project 的 build.gradle
+
+可能是第一个基于协程的事件分发框架, 并吸取Android的最新特性
+
+### 特点
+
+-   基于`Kotlin`的简洁API设计
+-   扩展`协程`实现异步处理和异常捕捉
+-   扩展`LiveData`实现前台数据接收
+-   扩展`LifeCycle`实现生命周期绑定
+-   无注解不影响编译时间
+-   体积小巧仅6kb
+-   完善的文档和帮助
+-   上手简单, 仅四个主要函数
+
+### 功能
+
+- [x] 发送消息 + 标签
+- [x] 仅发送标签
+- [x] 自动注销
+- [x] 自定义注销的生命周期, 手动取消观察者
+- [x] 接收消息属于异步主线程作用域
+- [x] 捕捉异常
+- [x] 回调 catch/finaly
+- [x] 消息延迟到应用前台时接收
+
+
+
+>   任何问题可点击QQ群图标, 联系作者技术帮助
+
+
+
+<br>
+
+在项目根目录的 build.gradle 添加仓库
 
 ```groovy
 allprojects {
@@ -30,121 +60,29 @@ allprojects {
 }
 ```
 
-
-
-module 的 build.gradle
+在 module 的 build.gradle 添加依赖
 
 ```groovy
-implementation 'com.github.liangjingkanji:Channel:1.0.1'
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
+
+implementation 'com.github.liangjingkanji:Channel:1.0.2'
 ```
 
-## 示例
+<br>
 
-
-
-```kotlin
-sendEvent("吴彦祖")
-
-receiveEvent<String> {
-  Log.d("日志", "(MainActivity.kt:25)    it = $it")
-}
-
-// 发送和接收事件
-
-
-sendTag("refresh_tag")
-
-receiveEvent("refresh_tag") {
-  Log.d("日志", "(MainActivity.kt:25)    tag = $it") // refresh_tag
-  
-}
-
-// 发送和接收标签事件
-```
-
-
-
-## 发送
-
-
-
-发送事件+标签
-
-```kotlin
-fun sendEvent(
-  event: Any,  // 事件
-  tag: String = "",  // 标签
-)
-```
-
-
-
-仅发送标签
-
-```kotlin
-fun sendTag(tag: String)
-```
-
-
-
-## 接收事件
-
-```kotlin
-inline fun <reified T> LifecycleOwner.receive(
-    active: Boolean = false,
-    vararg tags: String = arrayOf(),
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
-    noinline block: suspend CoroutineScope.(event: T) -> Unit
-): ChannelScope
-
-fun LifecycleOwner.receiveTag(
-    active: Boolean = false,
-    vararg tags: String,
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
-    block: suspend CoroutineScope.(tag: String) -> Unit
-): ChannelScope
-```
-
-
-
-1. 发送事件加标签时使用`receive`接收其事件, 如果发送时有指定标签,则接收时应该也指定其标签才能接收到其事件
-2. 仅发送标签时使用`receiveTag`可以接收到该事件, 可以同时接收多个标签的事件
-3. `active`表示只有当Activity或Fragment处于活跃状态时才会收到事件, 如果未活跃时发送则等待到活跃时收到
-4. 只有`LifecycleOwner`扩展函数才会在销毁时自动注销作用域
-
-
-
-活跃状态: 非`onPause`或者`onDestroy`都属于正在活跃中
-
-
-
-需要手动注销的接收者
+## License
 
 ```
-fun receiveTag(
-    vararg tags: String,
-    block: suspend CoroutineScope.(tag: String) -> Unit
-): ChannelScope
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-inline fun <reified T> receiveEvent(
-    vararg tags: String = arrayOf(),
-    noinline block: suspend (event: T) -> Unit
-): ChannelScope
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```
-
-
-
-## 异常捕捉
-
-```kotlin
-receiveEvent("refresh_tag") {
-  Log.d("日志", "(MainActivity.kt:25)    tag = $it") // refresh_tag
-  
-}.catch { // 当作用域中发生异常
-  
-	// it 为异常对象
-}.finaly {
-	// 无论正常或者异常结束后回调, it表示异常对象, 如果为null表示正常结束
-}
-```
-

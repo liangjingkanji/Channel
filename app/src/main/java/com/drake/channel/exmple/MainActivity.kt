@@ -2,11 +2,10 @@ package com.drake.channel.exmple
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import com.drake.channel.receiveEvent
 import com.drake.channel.sendEvent
-import com.hulab.debugkit.dev
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -15,27 +14,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        receiveEvent<String>(true) {
-
-            Log.d("日志", "(MainActivity.kt:25)    事件 = $it")
-
-            tv.text = it
+        // 接收事件
+        receiveEvent<String>(lifecycleEvent = Lifecycle.Event.ON_PAUSE) {
+            tv_event.text = it
         }
 
+        btn_open_act.setOnClickListener {
+            startActivity(Intent(this@MainActivity, Main2Activity::class.java))
+        }
 
-
-
-
-        dev {
-            function("新界面") {
-                startActivity(Intent(this@MainActivity, Main2Activity::class.java))
-            }
-
-            function("发送事件") {
-                sendEvent("金城武")
-                log("金城武")
-            }
+        btn_send_to_current.setOnClickListener {
+            sendEvent("发送事件给当前")
         }
     }
 }
