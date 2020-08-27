@@ -13,12 +13,6 @@
 <p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a></p>
 
 
-<p align="center"><img src="https://i.imgur.com/lZXNqXE.jpg" width="30%;" /></p>
-
-
-
-可能是第一个基于协程的事件分发框架, 并吸取Android的最新特性
-
 ### 特点
 
 -   基于`Kotlin`的简洁API设计
