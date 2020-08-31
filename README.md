@@ -4,6 +4,8 @@
 
 <p align="center"><strong>基于最新特性的Android事件分发框架</strong></p><br>
 
+<p align="center"><img src="https://i.imgur.com/OitdJ2V.jpg" width="50%"/></p>
+
 <p align="center">
 <a href="https://jitpack.io/#liangjingkanji/Channel"><img src="https://jitpack.io/v/liangjingkanji/Channel.svg"/></a>
 <img src="https://img.shields.io/badge/language-kotlin-orange.svg"/>
