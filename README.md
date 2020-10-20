@@ -1,10 +1,12 @@
 ## Channel
 
-<p align="center"><img src="https://i.imgur.com/FlRSoGc.jpg" width="40%"/></p>
+<p align="center"><img src="https://i.imgur.com/FlRSoGc.jpg" width="300"/></p>
 
-<p align="center"><strong>基于最新特性的Android事件分发框架</strong></p><br>
+<p align="center"><strong>基于最新特性的Android事件分发框架</strong></p>
 
-<p align="center"><img src="https://i.imgur.com/OitdJ2V.jpg" width="50%"/></p>
+<p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a></p>
+
+<p align="center"><img src="https://i.imgur.com/OitdJ2V.jpg" width="300"/></p>
 
 <p align="center">
 <a href="https://jitpack.io/#liangjingkanji/Channel"><img src="https://jitpack.io/v/liangjingkanji/Channel.svg"/></a>
@@ -12,7 +14,6 @@
 <img src="https://img.shields.io/badge/license-Apache-blue"/>
 <a href="https://jq.qq.com/?_wv=1027&k=vWsXSNBJ"><img src="https://img.shields.io/badge/QQ群-752854893-blue"/></a>
 </p>
-<p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a></p>
 
 
 ### 特点
