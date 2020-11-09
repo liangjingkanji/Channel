@@ -22,7 +22,7 @@ package com.drake.channel
  * @suppress 内部函数, 不应当在一般代码中使用
  */
 @Suppress("ClassName")
-class _Bus<T>(val event: T, val tag: String = "") {
+class _Bus<T>(val event: T, val tag: String? = null) {
 
     override fun toString(): String {
         return "event = $event, tag = $tag"
