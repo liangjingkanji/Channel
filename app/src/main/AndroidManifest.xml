@@ -25,7 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Main2Activity"
+            android:name=".TestActivity"
             android:parentActivityName=".MainActivity"
             android:label="界面 B" />
         <activity

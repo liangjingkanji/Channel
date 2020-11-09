@@ -18,6 +18,7 @@ package com.drake.channel.exmple
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.drake.channel.receiveEvent
 import com.drake.channel.sendEvent
@@ -31,11 +32,12 @@ class MainActivity : AppCompatActivity() {
 
         // 接收事件
         receiveEvent<String> {
+            Toast.makeText(this@MainActivity, "接收到事件:  $it", Toast.LENGTH_SHORT).show()
             tv_event.text = it
         }
 
         btn_open_act.setOnClickListener {
-            startActivity(Intent(this@MainActivity, Main2Activity::class.java))
+            startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
 
         btn_send_to_current.setOnClickListener {

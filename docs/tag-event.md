@@ -7,7 +7,13 @@
 
 === "接收标签"
     ```kotlin
-    receiveTag("refresh_tag") {
+    // 单个标签
+    receiveTag("tag_refresh") {
+        Log.d("日志", "收到标签 $it")
+    }
+
+    // 多个标签
+    receiveTag("tag_user_info", "tag_logout") {
         Log.d("日志", "收到标签 $it")
     }
     ```

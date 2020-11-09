@@ -13,7 +13,7 @@ receiveEvent<String>(lifecycleEvent = Lifecycle.Event.ON_PAUSE) {
 
 手动注销
 ```kotlin
-val scope = receiveEvent<String> {
+val scope = receiveEventHandler<String> {
     tv_event.text = it
 }
 

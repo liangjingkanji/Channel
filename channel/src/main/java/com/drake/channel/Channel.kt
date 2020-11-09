@@ -18,13 +18,13 @@
 
 package com.drake.channel
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 
@@ -58,33 +58,39 @@ fun sendTag(tag: String) = runBlocking { _channel.send(_Bus(TagEvent(), tag)) }
 /**
  * 接收事件
  *
- * @param active 当前事件是否仅在处于激活状态[MutableLiveData.onActive]才能被接收到
  * @param tags 可接受零个或多个标签, 如果标签为零个则匹配事件对象即可成功接收, 如果为多个则要求至少匹配一个标签才能成功接收到事件
- * @param lifecycleEvent 自定义生命周期, 默认为销毁时[Lifecycle.Event.ON_DESTROY]注销事件接受者
  * @param block 接收到事件后执行函数
  */
 inline fun <reified T> LifecycleOwner.receiveEvent(
-    active: Boolean = false,
     vararg tags: String = arrayOf(),
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
-): AndroidScope {
+): Job {
+    val coroutineScope = ChannelScope(this)
+    return coroutineScope.launch {
+        for (bus in _channel.openSubscription()) {
+            if (bus.event is T && (tags.isEmpty() && bus.tag.isBlank() || tags.contains(bus.tag))) {
+                block(bus.event)
+            }
+        }
+    }
+}
 
-    val coroutineScope = AndroidScope(this, lifecycleEvent)
+/**
+ * 使用LiveData将消息延迟到前台接收
+ */
+inline fun <reified T> LifecycleOwner.receiveEventLive(
+    vararg tags: String = arrayOf(),
+    noinline block: suspend CoroutineScope.(event: T) -> Unit
+): Job {
+
+    val coroutineScope = ChannelScope(this)
 
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() && bus.tag.isBlank() || tags.contains(bus.tag))) {
-                if (active) {
-                    MutableLiveData<T>().apply {
-                        observe(this@receiveEvent, {
-                            coroutineScope.launch {
-                                block(it)
-                            }
-                        })
-                        value = bus.event
-                    }
-                } else block(bus.event)
+                val liveData = MutableLiveData<T>()
+                liveData.observe(this@receiveEventLive, { suspend { block(it) } })
+                liveData.value = bus.event
             }
         }
     }
@@ -96,11 +102,11 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
  * @param tags 可接受零个或多个标签, 如果标签为零个则匹配事件对象即可成功接收, 如果为多个则要求至少匹配一个标签才能成功接收到事件
  * @param block 接收到事件后执行函数
  */
-inline fun <reified T> receiveEvent(
+inline fun <reified T> receiveEventHandler(
     vararg tags: String = arrayOf(),
-    noinline block: suspend (event: T) -> Unit
-): AndroidScope {
-    val coroutineScope = AndroidScope()
+    noinline block: suspend CoroutineScope.(event: T) -> Unit
+): Job {
+    val coroutineScope = ChannelScope()
 
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
@@ -115,40 +121,47 @@ inline fun <reified T> receiveEvent(
 
 //<editor-fold desc="接收标签">
 
+
 /**
  * 接收标签, 和[receiveEvent]不同之处在于该函数仅支持标签, 不支持事件+标签
  *
  * @param active 当前事件是否仅在处于激活状态[MutableLiveData.onActive]才能被接收到
  * @param tags 可接受零个或多个标签, 如果标签为零个则匹配事件对象即可成功接收, 如果为多个则要求至少匹配一个标签才能成功接收到事件
- * @param lifecycleEvent 自定义生命周期, 默认为销毁时[Lifecycle.Event.ON_DESTROY]注销事件接受者
  * @param block 接收到事件后执行函数
  */
 fun LifecycleOwner.receiveTag(
-    active: Boolean = false,
     vararg tags: String,
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
-): AndroidScope {
+): Job {
 
-    val coroutineScope = AndroidScope(this, lifecycleEvent)
+    val coroutineScope = ChannelScope(this)
 
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is TagEvent && tags.contains(bus.tag)) {
-                if (active) {
-                    MutableLiveData<String>().apply {
-                        observe(this@receiveTag, Observer {
-                            coroutineScope.launch {
-                                block(it)
-                            }
-                        })
-                        value = bus.tag
-                    }
-                } else block(bus.tag)
+                block(bus.tag)
             }
         }
     }
+}
 
+/**
+ * 使用LiveData将消息延迟到前台接收
+ */
+fun LifecycleOwner.receiveTagLive(
+    vararg tags: String,
+    block: suspend CoroutineScope.(tag: String) -> Unit
+): Job {
+    val coroutineScope = ChannelScope(this)
+    return coroutineScope.launch {
+        for (bus in _channel.openSubscription()) {
+            if (bus.event is TagEvent && tags.contains(bus.tag)) {
+                val liveData = MutableLiveData<String>()
+                liveData.observe(this@receiveTagLive, { suspend { block(it) } })
+                liveData.value = bus.tag
+            }
+        }
+    }
 }
 
 /**
@@ -157,13 +170,11 @@ fun LifecycleOwner.receiveTag(
  * @param tags 可接受零个或多个标签, 如果标签为零个则匹配事件对象即可成功接收, 如果为多个则要求至少匹配一个标签才能成功接收到事件
  * @param block 接收到事件后执行函数
  */
-fun receiveTag(
+fun receiveTagHandler(
     vararg tags: String,
     block: suspend CoroutineScope.(tag: String) -> Unit
-): AndroidScope {
-
-    val coroutineScope = AndroidScope()
-
+): Job {
+    val coroutineScope = ChannelScope()
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is TagEvent && tags.contains(bus.tag)) {

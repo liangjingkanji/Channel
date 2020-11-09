@@ -34,12 +34,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.tabbed
 
-
 nav:
   - 使用: index.md
   - 标签事件: tag-event.md
   - 生命周期: lifecycle.md
   - 前台更新: live.md
   - 切换调度器: dispatcher.md
-  - 异常捕获: exception.md
   - 1.x文档: api/channel/com.drake.channel/index.md
