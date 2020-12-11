@@ -25,7 +25,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 
 /**
@@ -40,7 +39,7 @@ val _channel = BroadcastChannel<_Bus<Any>>(Channel.BUFFERED)
  * @param event 事件
  * @param tag 标签, 使用默认值空, 则接受者将忽略标签, 仅匹配事件
  */
-fun sendEvent(event: Any, tag: String? = null) = runBlocking {
+fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
     _channel.send(_Bus(event, tag))
 }
 
@@ -49,7 +48,7 @@ fun sendEvent(event: Any, tag: String? = null) = runBlocking {
  * 发送标签
  * @param tag 标签
  */
-fun sendTag(tag: String?) = runBlocking {
+fun sendTag(tag: String?) = ChannelScope().launch {
     _channel.send(_Bus(TagEvent(), tag))
 }
 
