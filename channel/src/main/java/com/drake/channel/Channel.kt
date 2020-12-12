@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 /**
  * @suppress 一般代码不应该使用
  */
-var _channel = BroadcastChannel<_Bus<Any>>(Channel.UNLIMITED)
+var _channel = BroadcastChannel<_Bus<Any>>(Channel.BUFFERED)
 
 // <editor-fold desc="发送">
 
