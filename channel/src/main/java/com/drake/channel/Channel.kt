@@ -23,14 +23,13 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 
 /**
  * @suppress 一般代码不应该使用
  */
-var _channel = BroadcastChannel<_Bus<Any>>(Channel.UNLIMITED)
+var _channel = BroadcastChannel<_Bus<Any>>(102400)
 
 // <editor-fold desc="发送">
 
