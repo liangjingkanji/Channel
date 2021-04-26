@@ -4,7 +4,7 @@
 
 <p align="center"><strong>基于最新特性的Android事件分发框架</strong></p>
 
-<p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a></p>
+<p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a> | <a href="https://coding-pages-bucket-3558162-8706000-16643-587720-1252757332.cos-website.ap-shanghai.myqcloud.com/">备用访问</a></p>
 
 <p align="center"><img src="https://i.imgur.com/OitdJ2V.jpg" width="300"/></p>
 
