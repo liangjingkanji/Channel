@@ -2,20 +2,24 @@
 
 只要在Activity或者Fragment中使用`receiveEvent/receiveTag`其接受者就会在Activity或者Fragment被销毁的时候默认注销掉
 
-<br>
-配置自动注销的生命周期
+## 指定取消生命周期
+
+默认在`Lifecycle.Event.ON_DESTROY`销毁, 但是可以指定其参数
+
 ```kotlin
-receiveEvent<String>(lifecycleEvent = Lifecycle.Event.ON_PAUSE) {
+receiveEvent<String>(lifeEvent = Lifecycle.Event.ON_PAUSE) {
     tv_event.text = it
 }
 ```
 
+## 手动注销
 
-手动注销
+当不需要自动注销情况下可以使用`receiveEventHandler`返回一个Job用于手动取消事件接收者
+
 ```kotlin
-val scope = receiveEventHandler<String> {
+val job = receiveEventHandler<String> {
     tv_event.text = it
 }
 
-scope.cancel() // 手动调用函数注销
+job.cancel() // 手动调用函数注销
 ```

@@ -2,7 +2,7 @@
 
 === "发送标签"
     ```kotlin
-    sendTag("refresh_tag")
+    sendTag("tag_refresh")
     ```
 
 === "接收标签"

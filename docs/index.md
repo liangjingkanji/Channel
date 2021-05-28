@@ -3,7 +3,8 @@
 这里我使用字符串作为一个事件对象,当然你创建一个任意对象或者使用`Int`都可以
 <br>
 
-> `receiveEvent` 只有在Fragment/Activity或者任何继承`LifecycleOwner`的类中调用才会自动取消, 否则需要手动取消, 请查看目录[生命周期]一章, 不取消接受会导致重复收到事件
+> `receiveEvent` 只有在Fragment/Activity或者任何继承`LifecycleOwner`的类中调用才会自动取消 <br>
+> 否则需要手动取消, 请查看目录[生命周期](lifecycle.md)一章, 不取消接受会导致重复收到事件
 
 
 === "发送事件"
