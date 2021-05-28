@@ -18,6 +18,7 @@
 
 package com.drake.channel
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -64,9 +65,10 @@ fun sendTag(tag: String?) = ChannelScope().launch {
  */
 inline fun <reified T> LifecycleOwner.receiveEvent(
     vararg tags: String? = emptyArray(),
+    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this)
+    val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
@@ -81,11 +83,10 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
  */
 inline fun <reified T> LifecycleOwner.receiveEventLive(
     vararg tags: String? = arrayOf(),
+    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-
-    val coroutineScope = ChannelScope(this)
-
+    val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
@@ -130,11 +131,10 @@ inline fun <reified T> receiveEventHandler(
  */
 fun LifecycleOwner.receiveTag(
     vararg tags: String?,
+    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-
-    val coroutineScope = ChannelScope(this)
-
+    val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is TagEvent && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
@@ -149,9 +149,10 @@ fun LifecycleOwner.receiveTag(
  */
 fun LifecycleOwner.receiveTagLive(
     vararg tags: String?,
+    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this)
+    val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
         for (bus in _channel.openSubscription()) {
             if (bus.event is TagEvent && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
