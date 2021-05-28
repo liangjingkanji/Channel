@@ -40,4 +40,4 @@ nav:
   - 生命周期: lifecycle.md
   - 前台更新: live.md
   - 切换调度器: dispatcher.md
-  - 1.x文档: api/channel/com.drake.channel/index.md
+  - 1.x文档: api/index.html

@@ -1,0 +1,13 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:com.drake.channel////PointingToDeclaration/-channel/com.drake.channel/index.html
+$dokka.location:com.drake.channel//receiveEvent/androidx.lifecycle.LifecycleOwner#kotlin.Array[kotlin.String?]#androidx.lifecycle.Lifecycle.Event#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-event.html
+$dokka.location:com.drake.channel//receiveEventHandler/#kotlin.Array[kotlin.String?]#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-event-handler.html
+$dokka.location:com.drake.channel//receiveEventLive/androidx.lifecycle.LifecycleOwner#kotlin.Array[kotlin.String?]#androidx.lifecycle.Lifecycle.Event#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-event-live.html
+$dokka.location:com.drake.channel//receiveTag/androidx.lifecycle.LifecycleOwner#kotlin.Array[kotlin.String?]#androidx.lifecycle.Lifecycle.Event#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,kotlin.String,kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-tag.html
+$dokka.location:com.drake.channel//receiveTagHandler/#kotlin.Array[kotlin.String?]#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,kotlin.String,kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-tag-handler.html
+$dokka.location:com.drake.channel//receiveTagLive/androidx.lifecycle.LifecycleOwner#kotlin.Array[kotlin.String?]#androidx.lifecycle.Lifecycle.Event#kotlin.coroutines.SuspendFunction2[kotlinx.coroutines.CoroutineScope,kotlin.String,kotlin.Unit]/PointingToDeclaration/-channel/com.drake.channel/receive-tag-live.html
+$dokka.location:com.drake.channel//sendEvent/#kotlin.Any#kotlin.String?/PointingToDeclaration/-channel/com.drake.channel/send-event.html
+$dokka.location:com.drake.channel//sendTag/#kotlin.String?/PointingToDeclaration/-channel/com.drake.channel/send-tag.html
+com.drake.channel
+
