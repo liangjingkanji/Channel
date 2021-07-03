@@ -28,7 +28,7 @@ class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main)
     override fun initView() {
         // 接收事件
         receiveEvent<String> {
-            Toast.makeText(this@MainActivity, "接收到事件:  $it", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, "接收到事件:  $it", 0).show()
             binding.tvEvent.text = it
         }
 

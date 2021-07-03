@@ -6,7 +6,7 @@
 
 <p align="center"><a href="http://liangjingkanji.github.io/Channel/">使用文档</a> | <a href="https://coding-pages-bucket-3558162-8706000-16643-587720-1252757332.cos-website.ap-shanghai.myqcloud.com/">备用访问</a></p>
 
-<p align="center"><img src="https://i.imgur.com/OitdJ2V.jpg" width="300"/></p>
+<p align="center"><img src="https://i.imgur.com/TsYMHWc.png" width="400"/></p>
 
 <p align="center">
 <a href="https://jitpack.io/#liangjingkanji/Channel"><img src="https://jitpack.io/v/liangjingkanji/Channel.svg"/></a>
