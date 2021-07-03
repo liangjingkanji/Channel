@@ -17,31 +17,30 @@
 package com.drake.channel.exmple
 
 import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.drake.channel.exmple.databinding.ActivityMainBinding
 import com.drake.channel.receiveEvent
 import com.drake.channel.sendEvent
-import kotlinx.android.synthetic.main.activity_main.*
+import com.drake.engine.base.EngineActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main) {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+    override fun initView() {
         // 接收事件
         receiveEvent<String> {
             Toast.makeText(this@MainActivity, "接收到事件:  $it", Toast.LENGTH_SHORT).show()
-            tv_event.text = it
+            binding.tvEvent.text = it
         }
 
-        btn_open_act.setOnClickListener {
+        binding.btnOpenAct.setOnClickListener {
             startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
 
-        btn_send_to_current.setOnClickListener {
+        binding.btnSendToCurrent.setOnClickListener {
             sendEvent("发送事件给当前")
         }
+    }
+
+    override fun initData() {
     }
 }

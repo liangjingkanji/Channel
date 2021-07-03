@@ -16,25 +16,24 @@
 
 package com.drake.channel.exmple
 
-import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.drake.channel.exmple.databinding.ActivityTestBinding
 import com.drake.channel.sendEvent
-import kotlinx.android.synthetic.main.activity_test.*
+import com.drake.engine.base.EngineActivity
 
-class TestActivity : AppCompatActivity() {
+class TestActivity : EngineActivity<ActivityTestBinding>(R.layout.activity_test) {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test)
-
-        btn_send_event.setOnClickListener {
-            val event = et_event.text.toString()
+    override fun initView() {
+        binding.btnSendEvent.setOnClickListener {
+            val event = binding.etEvent.text.toString()
             if (event.isBlank()) {
                 Toast.makeText(this, "请输入事件内容", Toast.LENGTH_SHORT).show()
             } else {
                 sendEvent(event)
             }
         }
+    }
+
+    override fun initData() {
     }
 }
