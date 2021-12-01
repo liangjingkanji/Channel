@@ -53,6 +53,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnOpenAct" />
-
+        <TextView
+            android:id="@+id/tvEvent2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="显示特定事件"
+            android:textStyle="bold"
+            android:layout_marginTop="68dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvEvent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
