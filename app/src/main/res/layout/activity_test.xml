@@ -43,6 +43,13 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
+        <Button
+            android:id="@+id/btnSendEvent2"
+            style="@style/SimpleButton"
+            android:text="发送特定事件到主页"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnSendEvent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

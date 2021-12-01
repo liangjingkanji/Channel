@@ -28,10 +28,14 @@ class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main)
     override fun initView() {
         // 接收事件
         receiveEvent<String> {
-            Toast.makeText(this@MainActivity, "接收到事件:  $it", 0).show()
+            Toast.makeText(this@MainActivity, "接收到事件:  $it", Toast.LENGTH_SHORT).show()
             binding.tvEvent.text = it
         }
-
+        // 接收特定事件
+        receiveEvent<String>(tags = arrayOf("test")) {
+            Toast.makeText(this@MainActivity, "接收特定到事件:  $it", Toast.LENGTH_SHORT).show()
+            binding.tvEvent2.text = it
+        }
         binding.btnOpenAct.setOnClickListener {
             startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
