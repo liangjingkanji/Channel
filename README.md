@@ -70,7 +70,7 @@ dependencyResolutionManagement {
 ```groovy
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
 
-implementation 'com.github.liangjingkanji:Channel:1.1.4'
+implementation 'com.github.liangjingkanji:Channel:1.1.5'
 ```
 
 <br>
