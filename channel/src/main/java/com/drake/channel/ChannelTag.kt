@@ -16,4 +16,4 @@
 
 package com.drake.channel
 
-internal class ChannelTag
+internal object ChannelTag

@@ -15,22 +15,25 @@
  */
 
 @file:Suppress("ObjectPropertyName", "EXPERIMENTAL_API_USAGE")
-@file:OptIn(ObsoleteCoroutinesApi::class)
 
 package com.drake.channel
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-
 @PublishedApi
-internal var broadcastChannel = BroadcastChannel<ChannelEvent<Any>>(102400)
+internal var channelFlow = MutableSharedFlow<ChannelEvent<Any>>()
+internal val channelScope = ChannelScope()
+
 
 // <editor-fold desc="发送">
 
@@ -39,8 +42,8 @@ internal var broadcastChannel = BroadcastChannel<ChannelEvent<Any>>(102400)
  * @param event 事件
  * @param tag 标签, 使用默认值空, 则接受者将忽略标签, 仅匹配事件
  */
-fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
-    broadcastChannel.send(ChannelEvent(event, tag))
+fun sendEvent(event: Any, tag: String? = null) = channelScope.launch {
+    channelFlow.emit(ChannelEvent(event, tag))
 }
 
 
@@ -48,8 +51,8 @@ fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
  * 发送标签
  * @param tag 标签
  */
-fun sendTag(tag: String?) = ChannelScope().launch {
-    broadcastChannel.send(ChannelEvent(ChannelTag(), tag))
+fun sendTag(tag: String?) = channelScope.launch {
+    channelFlow.emit(ChannelEvent(ChannelTag, tag))
 }
 
 // </editor-fold>
@@ -68,31 +71,32 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
     lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this, lifeEvent)
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
-                block(bus.event)
+    return ChannelScope(this, lifeEvent).launch {
+        channelFlow.collect {
+            if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
+                block(it.event)
             }
         }
     }
 }
 
+inline fun <reified T> LifecycleOwner.receiveEvent(vararg tags: String? = emptyArray()): Flow<T> {
+    return channelFlow.filter { it.event is T && (tags.isEmpty() || tags.contains(it.tag)) }
+        .map { it.event as T }
+}
+
 /**
- * 使用LiveData将消息延迟到前台接收
+ * 将消息延迟到指定生命周期接收, 默认为前台接受消息
  */
 inline fun <reified T> LifecycleOwner.receiveEventLive(
     vararg tags: String? = arrayOf(),
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
+    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this, lifeEvent)
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
-                val liveData = MutableLiveData<T>()
-                liveData.observe(this@receiveEventLive) { coroutineScope.launch { block(it) } }
-                liveData.value = bus.event
+    return lifecycleScope.launch {
+        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+            if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
+                block(it.event)
             }
         }
     }
@@ -108,11 +112,10 @@ inline fun <reified T> receiveEventHandler(
     vararg tags: String? = arrayOf(),
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope()
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
-                block(bus.event)
+    return ChannelScope().launch {
+        channelFlow.collect {
+            if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
+                block(it.event)
             }
         }
     }
@@ -134,31 +137,32 @@ fun LifecycleOwner.receiveTag(
     lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this, lifeEvent)
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is ChannelTag && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
-                block(bus.tag)
+    return ChannelScope(this, lifeEvent).launch {
+        channelFlow.collect {
+            if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
+                block(it.tag)
             }
         }
     }
 }
 
+fun LifecycleOwner.receiveTag(vararg tags: String?): Flow<String> {
+    return channelFlow.filter { it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag) }
+        .map { it.tag!! }
+}
+
 /**
- * 使用LiveData将消息延迟到前台接收
+ * 将消息延迟到指定生命周期接收, 默认为前台接受消息
  */
 fun LifecycleOwner.receiveTagLive(
     vararg tags: String?,
     lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope(this, lifeEvent)
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is ChannelTag && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
-                val liveData = MutableLiveData<String>()
-                liveData.observe(this@receiveTagLive) { coroutineScope.launch { block(it) } }
-                liveData.value = bus.tag
+    return lifecycleScope.launch {
+        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+            if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
+                block(it.tag)
             }
         }
     }
@@ -174,11 +178,10 @@ fun receiveTagHandler(
     vararg tags: String?,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    val coroutineScope = ChannelScope()
-    return coroutineScope.launch {
-        for (bus in broadcastChannel.openSubscription()) {
-            if (bus.event is ChannelTag && !bus.tag.isNullOrEmpty() && tags.contains(bus.tag)) {
-                block(bus.tag)
+    return ChannelScope().launch {
+        channelFlow.collect {
+            if (it.event is ChannelTag && !it.tag.isNullOrEmpty() && tags.contains(it.tag)) {
+                block(it.tag)
             }
         }
     }
