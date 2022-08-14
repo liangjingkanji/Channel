@@ -22,8 +22,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
@@ -31,8 +33,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @PublishedApi
-internal var channelFlow = MutableSharedFlow<ChannelEvent<Any>>()
-internal val channelScope = ChannelScope()
+internal var sharedFlow = MutableSharedFlow<ChannelEvent<Any>>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+private val channelScope = ChannelScope()
 
 
 // <editor-fold desc="发送">
@@ -43,7 +45,7 @@ internal val channelScope = ChannelScope()
  * @param tag 标签, 使用默认值空, 则接受者将忽略标签, 仅匹配事件
  */
 fun sendEvent(event: Any, tag: String? = null) = channelScope.launch {
-    channelFlow.emit(ChannelEvent(event, tag))
+    sharedFlow.emit(ChannelEvent(event, tag))
 }
 
 
@@ -52,7 +54,7 @@ fun sendEvent(event: Any, tag: String? = null) = channelScope.launch {
  * @param tag 标签
  */
 fun sendTag(tag: String?) = channelScope.launch {
-    channelFlow.emit(ChannelEvent(ChannelTag, tag))
+    sharedFlow.emit(ChannelEvent(ChannelTag, tag))
 }
 
 // </editor-fold>
@@ -72,7 +74,7 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
     return ChannelScope(this, lifeEvent).launch {
-        channelFlow.collect {
+        sharedFlow.collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
             }
@@ -81,7 +83,7 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
 }
 
 inline fun <reified T> LifecycleOwner.receiveEvent(vararg tags: String? = emptyArray()): Flow<T> {
-    return channelFlow.filter { it.event is T && (tags.isEmpty() || tags.contains(it.tag)) }
+    return sharedFlow.filter { it.event is T && (tags.isEmpty() || tags.contains(it.tag)) }
         .map { it.event as T }
 }
 
@@ -91,10 +93,11 @@ inline fun <reified T> LifecycleOwner.receiveEvent(vararg tags: String? = emptyA
 inline fun <reified T> LifecycleOwner.receiveEventLive(
     vararg tags: String? = arrayOf(),
     lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
+    repeatOnLifecycle: Boolean = true,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
     return lifecycleScope.launch {
-        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+        sharedFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
             }
@@ -113,7 +116,7 @@ inline fun <reified T> receiveEventHandler(
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
     return ChannelScope().launch {
-        channelFlow.collect {
+        sharedFlow.collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
             }
@@ -137,8 +140,8 @@ fun LifecycleOwner.receiveTag(
     lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    return ChannelScope(this, lifeEvent).launch {
-        channelFlow.collect {
+    return ChannelScope(this, lifeEvent).launch(CoroutineExceptionHandler({ coroutineContext, throwable -> })) {
+        sharedFlow.collect {
             if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
                 block(it.tag)
             }
@@ -147,7 +150,7 @@ fun LifecycleOwner.receiveTag(
 }
 
 fun LifecycleOwner.receiveTag(vararg tags: String?): Flow<String> {
-    return channelFlow.filter { it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag) }
+    return sharedFlow.filter { it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag) }
         .map { it.tag!! }
 }
 
@@ -156,15 +159,28 @@ fun LifecycleOwner.receiveTag(vararg tags: String?): Flow<String> {
  */
 fun LifecycleOwner.receiveTagLive(
     vararg tags: String?,
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
+    lifeEvent: Lifecycle.State = Lifecycle.State.STARTED,
+    repeatOnLifecycle: Boolean = true,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
     return lifecycleScope.launch {
-        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+        sharedFlow.flowWithLifecycle(lifecycle, lifeEvent).collect {
             if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
                 block(it.tag)
             }
         }
+    }
+}
+
+fun getLifeState(event: Lifecycle.Event): Lifecycle.State {
+    return when (event) {
+        Lifecycle.Event.ON_CREATE -> Lifecycle.State.CREATED
+        Lifecycle.Event.ON_START -> Lifecycle.State.CREATED
+        Lifecycle.Event.ON_RESUME -> Lifecycle.State.CREATED
+        Lifecycle.Event.ON_PAUSE -> Lifecycle.State.RESUMED
+        Lifecycle.Event.ON_STOP -> Lifecycle.State.STARTED
+        Lifecycle.Event.ON_DESTROY -> Lifecycle.State.CREATED
+        Lifecycle.Event.ON_ANY -> Lifecycle.State.CREATED
     }
 }
 
@@ -179,7 +195,7 @@ fun receiveTagHandler(
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
     return ChannelScope().launch {
-        channelFlow.collect {
+        sharedFlow.collect {
             if (it.event is ChannelTag && !it.tag.isNullOrEmpty() && tags.contains(it.tag)) {
                 block(it.tag)
             }

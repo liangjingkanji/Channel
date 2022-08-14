@@ -17,10 +17,13 @@
 package com.drake.channel.exmple
 
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import com.drake.channel.exmple.databinding.ActivityMainBinding
 import com.drake.channel.receiveEvent
-import com.drake.channel.sendEvent
+import com.drake.channel.receiveTag
+import com.drake.channel.sendTag
+import com.drake.debugkit.dev
 import com.drake.engine.base.EngineActivity
 
 class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main) {
@@ -40,7 +43,18 @@ class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main)
             startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
         binding.btnSendToCurrent.setOnClickListener {
-            sendEvent("发送事件给当前页面")
+            // it.postDelayed({
+            sendTag("测试")
+            // }, 2000)
+        }
+
+        dev {
+            function {
+                receiveTag("测试") {
+                    Log.d("日志", "(MainActivity.kt:49)    it = ${it}")
+                    throw NullPointerException("测试异常")
+                }
+            }
         }
     }
 

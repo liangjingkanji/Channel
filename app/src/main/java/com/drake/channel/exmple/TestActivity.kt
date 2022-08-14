@@ -16,8 +16,10 @@
 
 package com.drake.channel.exmple
 
+import android.util.Log
 import android.widget.Toast
 import com.drake.channel.exmple.databinding.ActivityTestBinding
+import com.drake.channel.receiveTagLive
 import com.drake.channel.sendEvent
 import com.drake.engine.base.EngineActivity
 
@@ -39,6 +41,10 @@ class TestActivity : EngineActivity<ActivityTestBinding>(R.layout.activity_test)
             } else {
                 sendEvent(event, "标签1")
             }
+        }
+
+        receiveTagLive("测试") {
+            Log.d("日志", "(TestActivity.kt:46)    it = ${it}")
         }
     }
 

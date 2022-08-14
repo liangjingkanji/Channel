@@ -21,4 +21,13 @@ package com.drake.channel
  * Channel承载事件的模型
  */
 @PublishedApi
-internal class ChannelEvent<T>(val event: T, val tag: String? = null)
+internal class ChannelEvent<T>(val event: T, val tag: String? = null) {
+    override fun equals(other: Any?): Boolean {
+        if (other is ChannelEvent<*>) {
+            val event1 = other.event ?: return false
+            event1::class.java
+            return true
+        }
+        return super.equals(other)
+    }
+}
