@@ -35,9 +35,9 @@ class TestActivity : EngineActivity<ActivityTestBinding>(R.layout.activity_test)
         binding.btnSendEvent2.setOnClickListener {
             val event = binding.etEvent.text.toString()
             if (event.isBlank()) {
-                Toast.makeText(this, "请输入特定事件内容", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "请输入标签事件内容", Toast.LENGTH_SHORT).show()
             } else {
-                sendEvent(event,"test")
+                sendEvent(event, "标签1")
             }
         }
     }

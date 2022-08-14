@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("ObjectPropertyName", "EXPERIMENTAL_API_USAGE")
+@file:OptIn(ObsoleteCoroutinesApi::class)
 
 package com.drake.channel
 
@@ -23,14 +24,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
 
 
-/**
- * @suppress 一般代码不应该使用
- */
-var _channel = BroadcastChannel<_Bus<Any>>(102400)
+@PublishedApi
+internal var broadcastChannel = BroadcastChannel<ChannelEvent<Any>>(102400)
 
 // <editor-fold desc="发送">
 
@@ -40,7 +40,7 @@ var _channel = BroadcastChannel<_Bus<Any>>(102400)
  * @param tag 标签, 使用默认值空, 则接受者将忽略标签, 仅匹配事件
  */
 fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
-    _channel.send(_Bus(event, tag))
+    broadcastChannel.send(ChannelEvent(event, tag))
 }
 
 
@@ -49,7 +49,7 @@ fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
  * @param tag 标签
  */
 fun sendTag(tag: String?) = ChannelScope().launch {
-    _channel.send(_Bus(TagEvent(), tag))
+    broadcastChannel.send(ChannelEvent(ChannelTag(), tag))
 }
 
 // </editor-fold>
@@ -70,7 +70,7 @@ inline fun <reified T> LifecycleOwner.receiveEvent(
 ): Job {
     val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
+        for (bus in broadcastChannel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
                 block(bus.event)
             }
@@ -88,10 +88,10 @@ inline fun <reified T> LifecycleOwner.receiveEventLive(
 ): Job {
     val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
+        for (bus in broadcastChannel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
                 val liveData = MutableLiveData<T>()
-                liveData.observe(this@receiveEventLive, { coroutineScope.launch { block(it) } })
+                liveData.observe(this@receiveEventLive) { coroutineScope.launch { block(it) } }
                 liveData.value = bus.event
             }
         }
@@ -110,7 +110,7 @@ inline fun <reified T> receiveEventHandler(
 ): Job {
     val coroutineScope = ChannelScope()
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
+        for (bus in broadcastChannel.openSubscription()) {
             if (bus.event is T && (tags.isEmpty() || tags.contains(bus.tag))) {
                 block(bus.event)
             }
@@ -136,8 +136,8 @@ fun LifecycleOwner.receiveTag(
 ): Job {
     val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
-            if (bus.event is TagEvent && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
+        for (bus in broadcastChannel.openSubscription()) {
+            if (bus.event is ChannelTag && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
                 block(bus.tag)
             }
         }
@@ -154,10 +154,10 @@ fun LifecycleOwner.receiveTagLive(
 ): Job {
     val coroutineScope = ChannelScope(this, lifeEvent)
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
-            if (bus.event is TagEvent && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
+        for (bus in broadcastChannel.openSubscription()) {
+            if (bus.event is ChannelTag && !bus.tag.isNullOrBlank() && tags.contains(bus.tag)) {
                 val liveData = MutableLiveData<String>()
-                liveData.observe(this@receiveTagLive, { coroutineScope.launch { block(it) } })
+                liveData.observe(this@receiveTagLive) { coroutineScope.launch { block(it) } }
                 liveData.value = bus.tag
             }
         }
@@ -176,8 +176,8 @@ fun receiveTagHandler(
 ): Job {
     val coroutineScope = ChannelScope()
     return coroutineScope.launch {
-        for (bus in _channel.openSubscription()) {
-            if (bus.event is TagEvent && !bus.tag.isNullOrEmpty() && tags.contains(bus.tag)) {
+        for (bus in broadcastChannel.openSubscription()) {
+            if (bus.event is ChannelTag && !bus.tag.isNullOrEmpty() && tags.contains(bus.tag)) {
                 block(bus.tag)
             }
         }

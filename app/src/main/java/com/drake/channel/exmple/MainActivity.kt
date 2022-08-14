@@ -31,17 +31,16 @@ class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main)
             Toast.makeText(this@MainActivity, "接收到事件:  $it", Toast.LENGTH_SHORT).show()
             binding.tvEvent.text = it
         }
-        // 接收特定事件
-        receiveEvent<String>(tags = arrayOf("test")) {
-            Toast.makeText(this@MainActivity, "接收特定到事件:  $it", Toast.LENGTH_SHORT).show()
+        // 接收标签事件
+        receiveEvent<String>("标签1", "标签2") {
+            Toast.makeText(this@MainActivity, "接收标签事件:  $it", Toast.LENGTH_SHORT).show()
             binding.tvEvent2.text = it
         }
         binding.btnOpenAct.setOnClickListener {
             startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
-
         binding.btnSendToCurrent.setOnClickListener {
-            sendEvent("发送事件给当前")
+            sendEvent("发送事件给当前页面")
         }
     }
 

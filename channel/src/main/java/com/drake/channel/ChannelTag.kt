@@ -16,4 +16,4 @@
 
 package com.drake.channel
 
-internal class TagEvent
+internal class ChannelTag

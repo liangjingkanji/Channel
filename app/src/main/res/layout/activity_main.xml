@@ -57,7 +57,7 @@
             android:id="@+id/tvEvent2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="显示特定事件"
+            android:text="显示标签事件"
             android:textStyle="bold"
             android:layout_marginTop="68dp"
             app:layout_constraintEnd_toEndOf="parent"

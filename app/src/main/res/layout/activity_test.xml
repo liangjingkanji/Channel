@@ -46,7 +46,7 @@
         <Button
             android:id="@+id/btnSendEvent2"
             style="@style/SimpleButton"
-            android:text="发送特定事件到主页"
+            android:text="发送标签事件到主页"
             android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

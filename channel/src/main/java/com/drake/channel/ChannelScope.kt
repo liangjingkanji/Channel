@@ -27,9 +27,9 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 异步协程作用域
- * @suppress 一般代码不应该使用
  */
-open class ChannelScope() : CoroutineScope {
+@PublishedApi
+internal open class ChannelScope() : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main.immediate + SupervisorJob()
 
