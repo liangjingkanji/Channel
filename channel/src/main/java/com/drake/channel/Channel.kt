@@ -18,6 +18,7 @@
 
 package com.drake.channel
 
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
@@ -66,10 +67,10 @@ fun sendTag(tag: String?) = ChannelScope().launch {
  */
 inline fun <reified T> LifecycleOwner.receiveEvent(
     vararg tags: String? = emptyArray(),
-    minActiveEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
+    recycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    return ChannelScope(this, minActiveEvent).launch {
+    return ChannelScope(this, recycleEvent).launch {
         channelFlow.collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
@@ -132,10 +133,10 @@ inline fun <reified T> receiveEventHandler(
  */
 fun LifecycleOwner.receiveTag(
     vararg tags: String?,
-    minActiveEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
+    recycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    return ChannelScope(this, minActiveEvent).launch {
+    return ChannelScope(this, recycleEvent).launch {
         channelFlow.collect {
             if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
                 block(it.tag)

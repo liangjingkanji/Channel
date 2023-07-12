@@ -18,10 +18,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka'
-apply plugin: 'com.github.dcendents.android-maven'
+// apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.liangjingkanji'
 
 android {
+    namespace 'com.drake.channel'
     compileSdkVersion 30
 
     defaultConfig {
@@ -41,11 +42,11 @@ android {
         }
     }
 
-    dokkaHtml {
-        outputDirectory.set(file("$rootDir/docs/api"))
-        suppressInheritedMembers.set(true)
-        moduleName.set("Channel")
-    }
+    // dokkaHtml {
+    //     outputDirectory.set(file("$rootDir/docs/api"))
+    //     suppressInheritedMembers.set(true)
+    //     moduleName.set("Channel")
+    // }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
