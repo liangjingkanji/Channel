@@ -18,6 +18,7 @@
 
 package com.drake.channel
 
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
@@ -32,8 +33,6 @@ import kotlinx.coroutines.launch
 
 @PublishedApi
 internal var channelFlow = MutableSharedFlow<ChannelEvent<Any>>()
-internal val channelScope = ChannelScope()
-
 
 // <editor-fold desc="发送">
 
@@ -42,7 +41,7 @@ internal val channelScope = ChannelScope()
  * @param event 事件
  * @param tag 标签, 使用默认值空, 则接受者将忽略标签, 仅匹配事件
  */
-fun sendEvent(event: Any, tag: String? = null) = channelScope.launch {
+fun sendEvent(event: Any, tag: String? = null) = ChannelScope().launch {
     channelFlow.emit(ChannelEvent(event, tag))
 }
 
@@ -51,7 +50,7 @@ fun sendEvent(event: Any, tag: String? = null) = channelScope.launch {
  * 发送标签
  * @param tag 标签
  */
-fun sendTag(tag: String?) = channelScope.launch {
+fun sendTag(tag: String?) = ChannelScope().launch {
     channelFlow.emit(ChannelEvent(ChannelTag, tag))
 }
 
@@ -68,10 +67,10 @@ fun sendTag(tag: String?) = channelScope.launch {
  */
 inline fun <reified T> LifecycleOwner.receiveEvent(
     vararg tags: String? = emptyArray(),
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
+    recycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
-    return ChannelScope(this, lifeEvent).launch {
+    return ChannelScope(this, recycleEvent).launch {
         channelFlow.collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
@@ -90,11 +89,11 @@ inline fun <reified T> LifecycleOwner.receiveEvent(vararg tags: String? = emptyA
  */
 inline fun <reified T> LifecycleOwner.receiveEventLive(
     vararg tags: String? = arrayOf(),
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
+    minActiveEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
     noinline block: suspend CoroutineScope.(event: T) -> Unit
 ): Job {
     return lifecycleScope.launch {
-        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+        channelFlow.flowWithLifecycle(lifecycle, minActiveEvent.targetState).collect {
             if (it.event is T && (tags.isEmpty() || tags.contains(it.tag))) {
                 block(it.event)
             }
@@ -134,10 +133,10 @@ inline fun <reified T> receiveEventHandler(
  */
 fun LifecycleOwner.receiveTag(
     vararg tags: String?,
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
+    recycleEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
-    return ChannelScope(this, lifeEvent).launch {
+    return ChannelScope(this, recycleEvent).launch {
         channelFlow.collect {
             if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
                 block(it.tag)
@@ -156,11 +155,11 @@ fun LifecycleOwner.receiveTag(vararg tags: String?): Flow<String> {
  */
 fun LifecycleOwner.receiveTagLive(
     vararg tags: String?,
-    lifeEvent: Lifecycle.Event = Lifecycle.Event.ON_DESTROY,
+    minActiveEvent: Lifecycle.Event = Lifecycle.Event.ON_START,
     block: suspend CoroutineScope.(tag: String) -> Unit
 ): Job {
     return lifecycleScope.launch {
-        channelFlow.flowWithLifecycle(lifecycle, lifeEvent.targetState).collect {
+        channelFlow.flowWithLifecycle(lifecycle, minActiveEvent.targetState).collect {
             if (it.event is ChannelTag && !it.tag.isNullOrBlank() && tags.contains(it.tag)) {
                 block(it.tag)
             }
