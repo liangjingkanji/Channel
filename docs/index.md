@@ -1,54 +1,46 @@
-事件的发送和接收可以在项目中的任何地方
+可以在任何地方发送和接收任何对象
 
-这里我使用字符串作为一个事件对象,当然你创建一个任意对象或者使用`Int`都可以
-<br>
-
-> `receiveEvent` 只有在Fragment/Activity或者任何继承`LifecycleOwner`的类中调用才会自动取消 <br>
-> 否则需要手动取消, 请查看目录[生命周期](lifecycle.md)一章, 不取消接受会导致重复收到事件
-
-
-=== "发送事件"
+=== "发送"
     ```kotlin
-    sendEvent("发送事件给当前")
+    sendEvent("任何对象")
     ```
 
-=== "接收事件"
+=== "接收"
     ```kotlin
     receiveEvent<String>() {
-        tv_event.text = it
+        tv.text = it
     }
     ```
 
-<br>
-
-> 只要`sendEvent`的参数类型和`receiveEvent`的泛型类型匹配即可成功收发事件, 可以是任何对象(包括布尔类型或者字符串)
+!!! success "事件匹配"
+    `sendEvent`的参数和`receiveEvent`的泛型类型匹配即可接受事件, 可以是任何对象
 
 ## 标签
-有时候事件类型可能出现重叠或者叫复用, 我们可以通过加标签来区分事件
+如果类型重复, 可以通过加标签来区分事件
 
-创建一个对象作为事件
+创建一个事件类
 ```kotlin
-data class MyEvent(val name:String, val age:Int)
+data class UserInfoEvent(val name:String, val age:Int)
 ```
 
-=== "发送事件"
+=== "发送"
     ```kotlin
-    sendEvent(MyEvent("吴彦祖", 24), "sexy_man_tag")
+    sendEvent(UserInfoEvent("新的姓名", 24), "tag_change_name")
     ```
 
-=== "接收事件"
+=== "接收"
     ```kotlin
-    receiveEvent<MyEvent>("sexy_man_tag") {
-        tv_event.text = it.name // it 即为MyEvent对象
+    receiveEvent<UserInfoEvent>("tag_change_name", "tag_change_username") {
+        tv.text = it.name // it 即为UserInfoEvent
     }
     ```
 
 
-- 接受者传入的标签可以是多个, 但是发送了标签就一定要和接受者匹配至少一个标签, 否则无法成功接收到事件
-- 标签命名建议遵守规范, 例如`tag_refresh`, 全部有个前缀`tag_`, 方便你到时候全局搜索标签来定位事件
+- 标签可以是多个, 只要匹配一个标签, 就可成功接收事件
+- 建议遵守前缀`tag_`命名规范, 方便全局搜索标签来定位事件
 
-## 粘性事件
+<br>
+!!! failure "不支持粘性事件"
+    因为粘性事件本质属于全局变量, 会在应用意外销毁时被清除, 导致空指针
 
-本框架不支持粘性事件, 因为粘性事件本质就是全局变量, 而全局变量会在应用意外销毁时被清除会导致不可预见的空指针行为.
-
-我建议使用本地序列化的数据替代. 推荐使用[Serialize](https://github.com/liangjingkanji/Serialize)创建自动映射到本地磁盘的字段
+    建议使用 [Serialize](https://github.com/liangjingkanji/Serialize) 创建序列化字段, 读写自动映射磁盘

@@ -1,6 +1,4 @@
-基本上所有的事件分发框架都需要手动注销接受者, 但是Channel默认支持`自动注销`(当然也支持手动注销)
-
-只要在Activity或者Fragment中使用`receiveEvent/receiveTag`其接受者就会在Activity或者Fragment被销毁的时候默认注销掉
+`Channel.receiveEvent`支持`自动注销`, 当然也支持手动注销
 
 ## 指定取消生命周期
 
@@ -8,18 +6,18 @@
 
 ```kotlin
 receiveEvent<String>(lifeEvent = Lifecycle.Event.ON_PAUSE) {
-    tv_event.text = it
+    tv.text = it
 }
 ```
 
 ## 手动注销
 
-当不需要自动注销情况下可以使用`receiveEventHandler`返回一个Job用于手动取消事件接收者
+使用`receiveEventHandler`可返回用于手动取消事件的对象
 
 ```kotlin
-val job = receiveEventHandler<String> {
-    tv_event.text = it
+val receiver = receiveEventHandler<String> {
+    tv.text = it
 }
 
-job.cancel() // 手动调用函数注销
+receiver.cancel() // 手动调用函数注销
 ```
