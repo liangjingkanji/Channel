@@ -26,10 +26,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".TestActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="界面 B" />
+            android:exported="true"
+            android:label="界面 B"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
